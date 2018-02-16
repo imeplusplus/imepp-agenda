@@ -1,2 +1,3 @@
 python-telegram-bot>=9.0.0
 emoji>=0.4.5
+dataset>=1.0.5
