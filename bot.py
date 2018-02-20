@@ -48,9 +48,12 @@ def links(bot, update):
         for link in links:
             msg += link['name'] + ": " + link['url'] + "\n"
 
-        bot.send_message(chat_id = update.message.chat_id,
-                         text = msg,
-                         parse_mode = ParseMode.MARKDOWN)
+        bot.send_message(
+            chat_id = update.message.chat_id,
+            text = msg,
+            parse_mode = ParseMode.MARKDOWN,
+            disable_web_page_preview=True
+        )
 
 
 @restricted
@@ -75,7 +78,8 @@ def add_link(bot, update, args):
         bot.send_message(
             chat_id = update.message.chat_id,
             text = msg,
-            parse_mode = ParseMode.MARKDOWN
+            parse_mode = ParseMode.MARKDOWN,
+            disable_web_page_preview=True
         )
 
 
