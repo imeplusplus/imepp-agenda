@@ -15,7 +15,7 @@ dispatcher = updater.dispatcher
 
 logging.basicConfig(format='%(asctime)s - %(name)s -  %(levelname)s - %(message)s', level=logging.INFO)
 
-ADMINS = [366505920]
+ADMINS = [366505920, 187158190, 120847148, 445765305]
 
 def restricted(func):
     @wraps(func)
