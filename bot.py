@@ -8,12 +8,16 @@ from functools import wraps
 from telegram import *
 from telegram.ext import *
 
+import locale
+import bot_calendar
+
 token = os.environ['TOKEN']
 
 updater = Updater(token=token)
 dispatcher = updater.dispatcher
 
 logging.basicConfig(format='%(asctime)s - %(name)s -  %(levelname)s - %(message)s', level=logging.INFO)
+logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 
 ADMINS = [366505920, 187158190, 120847148, 445765305]
 
@@ -54,6 +58,16 @@ def links(bot, update):
             parse_mode = ParseMode.MARKDOWN,
             disable_web_page_preview=True
         )
+
+def events(bot, update):
+    msg = bot_calendar.get_events(6)
+    print (msg)
+    bot.send_message(
+        chat_id = update.message.chat_id,
+        text = msg,
+        parse_mode = ParseMode.MARKDOWN,
+        disable_web_page_preview=True
+    )
 
 
 @restricted
@@ -104,12 +118,13 @@ def remove_link(bot, update, args):
 
 if __name__ == "__main__":
     print("Starting IMEppAgenda")
-
+    locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
 
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('links', links))
     dispatcher.add_handler(CommandHandler('add_link', add_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('remove_link', remove_link, pass_args=True))
+    dispatcher.add_handler(CommandHandler('events', events))
 
     db = dataset.connect("sqlite:///bot.db");
 
