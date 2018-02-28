@@ -79,8 +79,6 @@ def get_events(n):
     if not events:
         return 'Não temos nenhum evento marcado =['
     for event in events:
-        #print("")
-        #print(event)
         start = dateutil.parser.parse(event['start'].get('dateTime', event['start'].get('date')))
         end = dateutil.parser.parse(event['end'].get('dateTime', event['start'].get('date')))
         s = get_best_format(start, end)

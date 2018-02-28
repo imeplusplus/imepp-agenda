@@ -61,7 +61,6 @@ def links(bot, update):
 
 def events(bot, update):
     msg = bot_calendar.get_events(6)
-    print (msg)
     bot.send_message(
         chat_id = update.message.chat_id,
         text = msg,
