@@ -64,7 +64,7 @@ def events(bot, update):
     bot.send_message(
         chat_id = update.message.chat_id,
         text = msg,
-        parse_mode = ParseMode.MARKDOWN,
+        parse_mode = ParseMode.HTML,
         disable_web_page_preview=True
     )
 
