@@ -45,5 +45,5 @@ Get your bot `TOKEN` using [BotFather](https://telegram.me/BotFather).
 Run the bot using:
 
 ```
-$ TOKEN=YOUR_TOKEN_HERE ./bot.py
+$ TOKEN=YOUR_TOKEN_HERE ./run.sh
 ```
