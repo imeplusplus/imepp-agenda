@@ -125,6 +125,6 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('remove_link', remove_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('events', events))
 
-    db = dataset.connect("sqlite:///bot.db");
+    db = dataset.connect("sqlite://" + os.path.dirname(os.path.realpath(__file__)) + "/bot.db");
 
     updater.start_polling()
