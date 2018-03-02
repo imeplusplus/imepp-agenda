@@ -56,14 +56,28 @@ $ bash setup.sh
 
 ## Install service
 
-Copy `imepp-agenda.service` to `/etc/systemd/system`
+Copy `imepp-agenda.service` to `/etc/systemd/system`.
 
-# Run
+Enable it to run at boot:
+
+```
+$ sudo systemctl start imepp-agenda
+```
+
+## Configure TOKEN
 
 Get your bot `TOKEN` using [BotFather](https://telegram.me/BotFather).
 
-Run the bot using:
+Create a file `.ENV` to store your token
 
 ```
-$ TOKEN=YOUR_TOKEN_HERE ./run.sh
+$ echo TOKEN=YOUR_TOKEN_HERE > .ENV
+```
+
+# Run the bot
+
+Having configured everything, the bot should run as a service
+
+```
+$ sudo systemctl start imepp-agenda
 ```
