@@ -1,5 +1,7 @@
 [Unit]
-Descriptio=IME++ Agenda
+Description=IMEppAgenda
+Wants=network-online.target
+After=network.target network-online.target
 
 [Service]
 ExecStart=/srv/imepp-agenda/run.sh
