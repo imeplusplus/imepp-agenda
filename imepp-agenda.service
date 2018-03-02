@@ -1,0 +1,8 @@
+[Unit]
+Descriptio=IME++ Agenda
+
+[Service]
+ExecStart=/srv/imepp-agenda/run.sh
+
+[Install]
+WantedBy=multi-user.target
