@@ -57,10 +57,10 @@ def get_best_format(start, end):
     diff = start - now
     day = datetime.timedelta(1)
     if(diff > day):
-        return start.strftime("começa %d/%m (%a), %H:%Mh ~ ") + end.strftime("%H:%Mh")
+        return start.strftime("%d/%m (%a), %H:%Mh ~ ") + end.strftime("%H:%Mh")
 
     diff_h, diff_m = hm(diff)
-    return "começa em {} horas e {} min".format(diff_h, diff_m)
+    return "Em {} horas e {} min".format(diff_h, diff_m)
 
 
 def get_events(n):
@@ -70,7 +70,7 @@ def get_events(n):
 
     now = datetime.datetime.utcnow().isoformat() + 'Z';
 
-    message = '*IME++ eventos*\n\n'
+    message = '<strong>IME++ Eventos</strong>\n\n'
     eventsResult = service.events().list(
         calendarId='o0bkduioq07c76n27lrgb37ilc@group.calendar.google.com',
         timeMin=now, maxResults=n, singleEvents=True, orderBy='startTime').execute()
@@ -79,8 +79,6 @@ def get_events(n):
     if not events:
         return 'Não temos nenhum evento marcado =['
     for event in events:
-        #print("")
-        #print(event)
         start = dateutil.parser.parse(event['start'].get('dateTime', event['start'].get('date')))
         end = dateutil.parser.parse(event['end'].get('dateTime', event['start'].get('date')))
         s = get_best_format(start, end)

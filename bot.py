@@ -76,11 +76,10 @@ def links(bot, update, args):
 
 def events(bot, update):
     msg = bot_calendar.get_events(6)
-    print (msg)
     bot.send_message(
         chat_id = update.message.chat_id,
         text = msg,
-        parse_mode = ParseMode.MARKDOWN,
+        parse_mode = ParseMode.HTML,
         disable_web_page_preview=True
     )
 
@@ -141,6 +140,6 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('remove_link', remove_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('events', events))
 
-    db = dataset.connect("sqlite:///bot.db");
+    db = dataset.connect("sqlite://" + os.path.dirname(os.path.realpath(__file__)) + "/bot.db");
 
     updater.start_polling()

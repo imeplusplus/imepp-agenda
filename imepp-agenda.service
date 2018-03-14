@@ -1,0 +1,12 @@
+[Unit]
+Description=IME++ Agenda
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+ExecStart=/srv/imepp-agenda/run.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
