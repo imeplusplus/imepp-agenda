@@ -132,6 +132,11 @@ def remove_link(bot, update, args):
         )
 
 
+def unknown(bot, update):
+    bot.send_message(chat_id=update.message.chat_id,
+                     text="Comando não reconhecido :(")
+
+
 if __name__ == "__main__":
     print("Starting IMEppAgenda")
     locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
@@ -141,6 +146,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('add_link', add_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('remove_link', remove_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('events', events))
+    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     db = dataset.connect("sqlite:///bot.db");
 
