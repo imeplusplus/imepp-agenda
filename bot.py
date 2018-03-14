@@ -147,6 +147,9 @@ def load_media():
     media.append(('image', 'media/AC_uva.png'))
     media.append(('image', 'media/AC_yandex_open.png'))
     media.append(('image', 'media/AC_yandex_blind.png'))
+    media.append(('video', 'media/dreams.mp4'))
+    media.append(('video', 'media/yes-you-can.mp4'))
+    media.append(('video', 'media/nothing-is-impossible.mp4'))
 
 
 def motiveme(bot, update):
@@ -154,6 +157,8 @@ def motiveme(bot, update):
 
     if t == 'image':
         bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
+    if t == 'video':
+        bot.send_video(chat_id=update.message.chat_id, video=open(n, 'rb'))
 
 
 def unknown(bot, update):
