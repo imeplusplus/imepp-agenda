@@ -4,6 +4,7 @@
 import os
 import logging
 import dataset
+import random
 from functools import wraps
 from telegram import *
 from telegram.ext import *
@@ -18,6 +19,8 @@ dispatcher = updater.dispatcher
 
 logging.basicConfig(format='%(asctime)s - %(name)s -  %(levelname)s - %(message)s', level=logging.INFO)
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
+
+media = []
 
 ADMINS = [366505920, 187158190, 120847148, 445765305]
 
@@ -138,6 +141,21 @@ def remove_link(bot, update, args):
         )
 
 
+def load_media():
+    media.append(('image', 'media/AC_cf.png'))
+    media.append(('image', 'media/AC_uri.png'))
+    media.append(('image', 'media/AC_uva.png'))
+    media.append(('image', 'media/AC_yandex_open.png'))
+    media.append(('image', 'media/AC_yandex_blind.png'))
+
+
+def motiveme(bot, update):
+    t, n = random.choice(media)
+
+    if t == 'image':
+        bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
+
+
 def unknown(bot, update):
     bot.send_message(chat_id=update.message.chat_id,
                      text="Comando não reconhecido :(")
@@ -147,11 +165,14 @@ if __name__ == "__main__":
     print("Starting IMEppAgenda")
     locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
 
+    load_media()
+
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('links', links, pass_args=True))
     dispatcher.add_handler(CommandHandler('add_link', add_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('remove_link', remove_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('events', events))
+    dispatcher.add_handler(CommandHandler('motiveme', motiveme))
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     db = dataset.connect("sqlite:///bot.db");
