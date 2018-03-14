@@ -38,7 +38,7 @@ def restricted(func):
 def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Eu sou um bot, mas você pode me entender como uma convolução cíclica multivariável")
 
-def links(bot, update):
+def links(bot, update, args):
     table = db["links"]
     links = list(table.all())
 
@@ -47,17 +47,32 @@ def links(bot, update):
             chat_id = update.message.chat_id,
             text="Não existe nenhum link =[")
     else:
-        msg = "*IME++ Links*\n"
+        if len(args) == 1:
+            if args[0] == "all":
+                msg = "*IME++ Links*\n"
 
-        for link in links:
-            msg += link['name'] + ": " + link['url'] + "\n"
+                for link in links:
+                    msg += link['name'] + ": " + link['url'] + "\n"
 
-        bot.send_message(
-            chat_id = update.message.chat_id,
-            text = msg,
-            parse_mode = ParseMode.MARKDOWN,
-            disable_web_page_preview=True
-        )
+                bot.send_message(
+                    chat_id = update.message.chat_id,
+                    text = msg,
+                    parse_mode = ParseMode.MARKDOWN,
+                    disable_web_page_preview=True
+                )
+        else:
+            msg = "*IME++ Links*\n"
+            msg += "Mostrando últimos 5 links\nUse `/links all` para mostrar todos\n\n"
+
+            for i in range(max(-5, -len(links)), 0):
+                msg += links[i]['name'] + ": " + links[i]['url'] + "\n"
+
+            bot.send_message(
+                chat_id = update.message.chat_id,
+                text = msg,
+                parse_mode = ParseMode.MARKDOWN,
+                disable_web_page_preview=True
+            )
 
 def events(bot, update):
     msg = bot_calendar.get_events(6)
@@ -121,7 +136,7 @@ if __name__ == "__main__":
     locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
 
     dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(CommandHandler('links', links))
+    dispatcher.add_handler(CommandHandler('links', links, pass_args=True))
     dispatcher.add_handler(CommandHandler('add_link', add_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('remove_link', remove_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('events', events))
