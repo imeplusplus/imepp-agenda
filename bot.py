@@ -61,10 +61,12 @@ def links(bot, update, args):
                     disable_web_page_preview=True
                 )
         else:
-            msg = "*IME++ Links*\n"
-            msg += "Mostrando últimos 5 links\nUse `/links all` para mostrar todos\n\n"
+            total_links = 8
 
-            for i in range(max(-5, -len(links)), 0):
+            msg = "*IME++ Links*\n"
+            msg += "Mostrando últimos " + str(total_links) + " links\nUse `/links all` para mostrar todos\n\n"
+
+            for i in range(max(-total_links, -len(links)), 0):
                 msg += links[i]['name'] + ": " + links[i]['url'] + "\n"
 
             bot.send_message(
