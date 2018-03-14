@@ -47,20 +47,7 @@ def links(bot, update, args):
             chat_id = update.message.chat_id,
             text="Não existe nenhum link =[")
     else:
-        if len(args) == 1:
-            if args[0] == "all":
-                msg = "*IME++ Links*\n"
-
-                for link in links:
-                    msg += link['name'] + ": " + link['url'] + "\n"
-
-                bot.send_message(
-                    chat_id = update.message.chat_id,
-                    text = msg,
-                    parse_mode = ParseMode.MARKDOWN,
-                    disable_web_page_preview=True
-                )
-        else:
+        if len(args) == 0:
             total_links = 8
 
             msg = "*IME++ Links*\n"
@@ -75,6 +62,25 @@ def links(bot, update, args):
                 parse_mode = ParseMode.MARKDOWN,
                 disable_web_page_preview=True
             )
+
+        else:
+            if args[0] == "all":
+                msg = "*IME++ Links*\n"
+
+                for link in links:
+                    msg += link['name'] + ": " + link['url'] + "\n"
+
+                bot.send_message(
+                    chat_id = update.message.chat_id,
+                    text = msg,
+                    parse_mode = ParseMode.MARKDOWN,
+                    disable_web_page_preview=True
+                    )
+            else:
+                bot.send_message(
+                    chat_id = update.message.chat_id,
+                    text="Argumentos não reconhecidos.\nUse `/links [all]` para receber os links",
+                    parse_mode = ParseMode.MARKDOWN)
 
 def events(bot, update):
     msg = bot_calendar.get_events(6)
