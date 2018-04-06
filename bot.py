@@ -153,12 +153,17 @@ def load_media():
 
 
 def motiveme(bot, update):
-    t, n = random.choice(media)
+    user_id = update.effective_user.id
+    if user_id == 366505920:
+        bot.send_photo(chat_id=update.message.chat_id, photo=open('media/yellow_xavi.png', 'rb'))
 
-    if t == 'image':
-        bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
-    if t == 'video':
-        bot.send_video(chat_id=update.message.chat_id, video=open(n, 'rb'))
+    else:
+        t, n = random.choice(media)
+
+        if t == 'image':
+            bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
+        if t == 'video':
+            bot.send_video(chat_id=update.message.chat_id, video=open(n, 'rb'))
 
 
 def unknown(bot, update):
