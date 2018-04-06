@@ -71,7 +71,7 @@ Get your bot `TOKEN` using [BotFather](https://telegram.me/BotFather).
 Create a file `.ENV` to store your token
 
 ```
-$ echo TOKEN=YOUR_TOKEN_HERE > .ENV
+$ echo "export TOKEN=<YOUR_TOKEN_HERE>" > .ENV
 ```
 
 # Run the bot
