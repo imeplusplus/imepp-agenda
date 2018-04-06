@@ -8,6 +8,7 @@ import random
 from functools import wraps
 from telegram import *
 from telegram.ext import *
+from collections import defaultdict
 
 import locale
 import bot_calendar
@@ -20,9 +21,13 @@ dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s -  %(levelname)s - %(message)s', level=logging.INFO)
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 
-media = []
+motiveme_media = []
+motiveme_custom_media = defaultdict(list)
+rating_media = []
 
-ADMINS = [366505920, 187158190, 120847148, 445765305]
+USERS = { 'xavi': 366505920, 'naum': 187158190 }
+
+ADMINS = [USERS['xavi'], USERS['naum'], 120847148, 445765305]
 
 def restricted(func):
     @wraps(func)
@@ -142,28 +147,37 @@ def remove_link(bot, update, args):
 
 
 def load_media():
-    media.append(('image', 'media/AC_cf.png'))
-    media.append(('image', 'media/AC_uri.png'))
-    media.append(('image', 'media/AC_uva.png'))
-    media.append(('image', 'media/AC_yandex_open.png'))
-    media.append(('image', 'media/AC_yandex_blind.png'))
-    media.append(('video', 'media/dreams.mp4'))
-    media.append(('video', 'media/yes-you-can.mp4'))
-    media.append(('video', 'media/nothing-is-impossible.mp4'))
+    motiveme_media.append(('image', 'media/AC_cf.png'))
+    motiveme_media.append(('image', 'media/AC_uri.png'))
+    motiveme_media.append(('image', 'media/AC_uva.png'))
+    motiveme_media.append(('image', 'media/AC_yandex_open.png'))
+    motiveme_media.append(('image', 'media/AC_yandex_blind.png'))
+    motiveme_media.append(('video', 'media/dreams.mp4'))
+    motiveme_media.append(('video', 'media/yes-you-can.mp4'))
+    motiveme_media.append(('video', 'media/nothing-is-impossible.mp4'))
+
+    motiveme_custom_media[USERS['xavi']].append(('image', 'media/yellow_xavi.png'))
+
+    rating_media.append(('image', 'media/no-rating0.jpg'))
+    rating_media.append(('image', 'media/no-rating1.jpg'))
 
 
 def motiveme(bot, update):
+    media = motiveme_media
+
     user_id = update.effective_user.id
-    if user_id == 366505920:
-        bot.send_photo(chat_id=update.message.chat_id, photo=open('media/yellow_xavi.png', 'rb'))
+    if user_id in motiveme_custom_media:
+        media = motiveme_custom_media[user_id]
 
-    else:
-        t, n = random.choice(media)
+    t, n = random.choice(media)
+    if t == 'image': bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
+    if t == 'video': bot.send_video(chat_id=update.message.chat_id, video=open(n, 'rb'))
 
-        if t == 'image':
-            bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
-        if t == 'video':
-            bot.send_video(chat_id=update.message.chat_id, video=open(n, 'rb'))
+
+def norating(bot, update):
+    t, n = random.choice(rating_media)
+    if t == 'image': bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
+    if t == 'video': bot.send_video(chat_id=update.message.chat_id, video=open(n, 'rb'))
 
 
 def unknown(bot, update):
@@ -182,7 +196,8 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('add_link', add_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('remove_link', remove_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('events', events))
-    dispatcher.add_handler(CommandHandler('motiveme', motiveme))
+    dispatcher.add_handler(CommandHandler('motive', motiveme))
+    dispatcher.add_handler(CommandHandler('norating', norating))
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     db = dataset.connect("sqlite:///bot.db");
