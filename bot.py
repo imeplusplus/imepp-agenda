@@ -162,6 +162,12 @@ def load_media():
     rating_media.append(('image', 'media/no-rating1.jpg'))
 
 
+def send_random_media(bot, update, media):
+    t, n = random.choice(media)
+    if t == 'image': bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
+    if t == 'video': bot.send_video(chat_id=update.message.chat_id, video=open(n, 'rb'))
+
+
 def motiveme(bot, update):
     media = motiveme_media
 
@@ -169,15 +175,15 @@ def motiveme(bot, update):
     if user_id in motiveme_custom_media:
         media = motiveme_custom_media[user_id]
 
-    t, n = random.choice(media)
-    if t == 'image': bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
-    if t == 'video': bot.send_video(chat_id=update.message.chat_id, video=open(n, 'rb'))
+    send_random_media(bot, update, media)
 
 
 def norating(bot, update):
-    t, n = random.choice(rating_media)
-    if t == 'image': bot.send_photo(chat_id=update.message.chat_id, photo=open(n, 'rb'))
-    if t == 'video': bot.send_video(chat_id=update.message.chat_id, video=open(n, 'rb'))
+    send_random_media(bot, update, rating_media)
+
+
+def givehint(bot, update):
+    bot.send_photo(chat_id=update.message.chat_id, photo=open('media/new-hobby.png', 'rb'))
 
 
 def unknown(bot, update):
@@ -198,6 +204,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('events', events))
     dispatcher.add_handler(CommandHandler('motiveme', motiveme))
     dispatcher.add_handler(CommandHandler('norating', norating))
+    dispatcher.add_handler(CommandHandler('givehint', givehint))
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     db = dataset.connect("sqlite:///bot.db");
