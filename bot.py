@@ -161,6 +161,7 @@ def load_media():
 
     rating_media.append(('image', 'media/no-rating0.jpg'))
     rating_media.append(('image', 'media/no-rating1.jpg'))
+    rating_media.append(('image', 'media/no-rating2.jpg'))
 
 
 def send_random_media(bot, update, media):
