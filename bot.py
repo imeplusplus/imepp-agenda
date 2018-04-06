@@ -196,7 +196,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('add_link', add_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('remove_link', remove_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('events', events))
-    dispatcher.add_handler(CommandHandler('motive', motiveme))
+    dispatcher.add_handler(CommandHandler('motiveme', motiveme))
     dispatcher.add_handler(CommandHandler('norating', norating))
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
