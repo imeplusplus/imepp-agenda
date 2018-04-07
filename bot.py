@@ -153,6 +153,7 @@ def load_media():
     motiveme_media.append(('image', 'media/AC_yandex_open.png'))
     motiveme_media.append(('image', 'media/AC_yandex_blind.png'))
     motiveme_media.append(('image', 'media/mistermax.png'))
+    motiveme_media.append(('image', 'media/last-min.jpg'))
     motiveme_media.append(('video', 'media/dreams.mp4'))
     motiveme_media.append(('video', 'media/yes-you-can.mp4'))
     motiveme_media.append(('video', 'media/nothing-is-impossible.mp4'))
