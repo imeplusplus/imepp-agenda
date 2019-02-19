@@ -190,6 +190,9 @@ def norating(bot, update):
 def givehint(bot, update):
     bot.send_photo(chat_id=update.message.chat_id, photo=open('media/new-hobby.png', 'rb'))
 
+def my_id(bot, update):
+    bot.send_message(chat_id=update.message.chat_id,
+                     text="User ID: " + str(update.message.from_user.id))
 
 def unknown(bot, update):
     bot.send_message(chat_id=update.message.chat_id,
@@ -210,6 +213,7 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('motiveme', motiveme))
     dispatcher.add_handler(CommandHandler('norating', norating))
     dispatcher.add_handler(CommandHandler('givehint', givehint))
+    dispatcher.add_handler(CommandHandler('my_id', my_id))
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     db = dataset.connect("sqlite:///bot.db");
