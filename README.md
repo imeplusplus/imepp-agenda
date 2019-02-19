@@ -8,8 +8,14 @@ Clone repository to `/src/imepp-agenda`
 
 Install `pt_BR.utf8` (or change `bot.py` to your `locale`)
 
+(This may not be required (wasn't on Raspbian):
+
+ ```
+ $ sudo apt install language-pack-pt
+ ```
+)
+
 ```
-$ sudo apt install language-pack-pt
 $ sudo dpkg-reconfigure locales
 ```
 
@@ -37,7 +43,7 @@ Run virtualenv
 
 ```
 $ python3 -m venv venv
-$ . ./venv/bin/activate
+$ source venv/bin/activate
 ```
 
 (To deactivate virtualenv just run `deactivate`)
@@ -54,14 +60,25 @@ $ pip install -r requirements.txt
 $ bash setup.sh
 ```
 
+# Setup Google Calendar
+
+1. Sign-in as `IME++` on Google
+2. Enter [https://console.developers.google.com/apis/credentials](Google API Credentials)
+3. Download JSON
+4. Rename to `credentials.json`
+
 ## Install service
 
-Copy `imepp-agenda.service` to `/etc/systemd/system`.
+Link `imepp-agenda.service` to `/etc/systemd/system`.
+
+```
+$ sudo ln -s /srv/imepp-agenda/imepp-agenda.service /etc/systemd/system/imepp-agenda.service
+```
 
 Enable it to run at boot:
 
 ```
-$ sudo systemctl start imepp-agenda
+$ sudo systemctl enable imepp-agenda
 ```
 
 ## Configure TOKEN
@@ -77,6 +94,16 @@ $ echo "export TOKEN=<YOUR_TOKEN_HERE>" > .ENV
 # Run the bot
 
 Having configured everything, the bot should run as a service
+
+(Almost... You must run as `sudo` user first, since the authentication of Google
+ Calendar must be configured by hand:
+
+ ```
+ $ sudo ./run.sh
+ ```
+
+ And on Telegram type: `/events`
+)
 
 ```
 $ sudo systemctl start imepp-agenda
