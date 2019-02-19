@@ -56,10 +56,12 @@ def links(bot, update, args):
             text="Não existe nenhum link =[")
     else:
         if len(args) == 0:
-            total_links = 8
+            msg = ""
 
-            msg = "*IME++ Links*\n"
-            msg += "Mostrando últimos " + str(total_links) + " links\nUse `/links all` para mostrar todos\n\n"
+            total_links = 8
+            if len(links) > total_links:
+              msg = "*IME++ Links*\n"
+              msg += "Mostrando últimos " + str(total_links) + " links\nUse `/links all` para mostrar todos\n\n"
 
             for i in range(max(-total_links, -len(links)), 0):
                 msg += links[i]['name'] + ": " + links[i]['url'] + "\n"
@@ -196,7 +198,7 @@ def unknown(bot, update):
 
 if __name__ == "__main__":
     print("Starting IMEppAgenda")
-    locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF8')
 
     load_media()
 
