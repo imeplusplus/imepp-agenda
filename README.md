@@ -8,12 +8,7 @@ Clone repository to `/src/imepp-agenda`
 
 Install `pt_BR.utf8` (or change `bot.py` to your `locale`)
 
-(This may not be required (wasn't on Raspbian):
-
- ```
- $ sudo apt install language-pack-pt
- ```
-)
+(This may not be required (wasn't on Raspbian): `$ sudo apt install language-pack-pt`)
 
 ```
 $ sudo dpkg-reconfigure locales
@@ -96,14 +91,7 @@ $ echo "export TOKEN=<YOUR_TOKEN_HERE>" > .ENV
 Having configured everything, the bot should run as a service
 
 (Almost... You must run as `sudo` user first, since the authentication of Google
- Calendar must be configured by hand:
-
- ```
- $ sudo ./run.sh
- ```
-
- And on Telegram type: `/events`
-)
+ Calendar must be configured by hand: `$ sudo ./run.sh`, and on Telegram type: `/events`)
 
 ```
 $ sudo systemctl start imepp-agenda
