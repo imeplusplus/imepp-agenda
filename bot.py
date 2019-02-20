@@ -3,15 +3,16 @@
 
 import os
 import logging
-import dataset
 import random
+import locale
 from functools import wraps
 from telegram import *
 from telegram.ext import *
 from collections import defaultdict
 
-import locale
 import bot_calendar
+from bot_admin import *
+from bot_db import db
 
 token = os.environ['TOKEN']
 
@@ -27,22 +28,6 @@ rating_media = []
 
 USERS = { 'xavi': 366505920, 'naum': 187158190 }
 
-ADMINS = [USERS['xavi'], USERS['naum'], 120847148, 445765305]
-
-def restricted(func):
-    @wraps(func)
-    def wrapped(bot, update, *args, **kwargs):
-        user_id = update.effective_user.id
-        if user_id not in ADMINS:
-            bot.send_message(
-                char_id = update.message.chat_id,
-                text = "*Acesso negado.*",
-                parse_mode = ParseMode.MARKDOWN
-            )
-            return
-        return func(bot, update, *args, **kwargs)
-    return wrapped
-
 def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Eu sou um bot, mas você pode me entender como uma convolução cíclica multivariável")
 
@@ -55,7 +40,7 @@ def links(bot, update, args):
             chat_id = update.message.chat_id,
             text="Não existe nenhum link =[")
     else:
-        if len(args) == 0:
+        if len(args) == 0 or args[0] != 'all':
             msg = ""
 
             total_links = 8
@@ -74,23 +59,63 @@ def links(bot, update, args):
             )
 
         else:
-            if args[0] == "all":
-                msg = "*IME++ Links*\n"
+            msg = "*IME++ Links*\n"
 
-                for link in links:
-                    msg += link['name'] + ": " + link['url'] + "\n"
+            for link in links:
+                msg += link['name'] + ": " + link['url'] + "\n"
 
-                bot.send_message(
-                    chat_id = update.message.chat_id,
-                    text = msg,
-                    parse_mode = ParseMode.MARKDOWN,
-                    disable_web_page_preview=True
-                    )
-            else:
-                bot.send_message(
-                    chat_id = update.message.chat_id,
-                    text="Argumentos não reconhecidos.\nUse `/links [all]` para receber os links",
-                    parse_mode = ParseMode.MARKDOWN)
+            bot.send_message(
+                chat_id = update.message.chat_id,
+                text = msg,
+                parse_mode = ParseMode.MARKDOWN,
+                disable_web_page_preview=True
+            )
+
+
+def add_link_internal(update, name, link):
+    links_db = db['links']
+    links_db.upsert(dict(name=name, url=link), ['url'])
+
+    msg  = "*Link adicionado ou atualizado com sucesso!*\n"
+    msg += "Link: " + link + "\n"
+    msg += "Descrição: " + name
+
+    update.message.reply_text(
+        msg,
+        parse_mode = ParseMode.MARKDOWN,
+        disable_web_page_preview=True
+    )
+
+
+def rem_link_internal(update, link):
+    links_db = db['links']
+    links_db.delete(url=link)
+    update.message.reply_text("Link removido com sucesso. (Ou não)")
+
+@restricted
+def add_link(bot, update, args):
+    if len(args) < 2:
+        update.effective_message.reply_text(
+            "Comando incorreto.\nUso: /add_link <link> <nome do link>"
+        )
+        return
+
+    link = args[0]
+    name = ' '.join(args[1:])
+    add_link_internal(update, name, link)
+
+
+@restricted
+def rem_link(bot, update, args):
+    if len(args) < 1:
+        update.effective_message.reply_text(
+            "Comando incorreto.\nUso: /remove_link <link>"
+        )
+        return
+
+    link = args[0]
+    rem_link_internal(update, link)
+
 
 def events(bot, update):
     msg = bot_calendar.get_events(6)
@@ -100,52 +125,6 @@ def events(bot, update):
         parse_mode = ParseMode.HTML,
         disable_web_page_preview=True
     )
-
-
-@restricted
-def add_link(bot, update, args):
-    if len(args) < 2:
-        bot.send_message(
-            chat_id = update.message.chat_id,
-            text = "Comando incorreto.\nUso: /add_link <link> <nome do link>"
-        )
-    else:
-        links_db = db['links']
-
-        link = args[0]
-        name = ' '.join(args[1:])
-
-        links_db.insert(dict(name=name, url=link))
-
-        msg  = "*Link adicionado com sucesso!*\n"
-        msg += "Nome do link: " + name + "\n"
-        msg += "Link: " + link
-
-        bot.send_message(
-            chat_id = update.message.chat_id,
-            text = msg,
-            parse_mode = ParseMode.MARKDOWN,
-            disable_web_page_preview=True
-        )
-
-
-@restricted
-def remove_link(bot, update, args):
-    if len(args) < 1:
-        bot.send_message(
-            chat_id = update.message.chat_id,
-            text = "Comando incorreto.\nUso: /remove_link <link> [links extra]"
-        )
-    else:
-        links_db = db['links']
-
-        for url in args:
-            links_db.delete(url=url)
-
-        bot.send_message(
-            chat_id = update.message.chat_id,
-            text = "Links removidos com sucesso. (Ou nao)"
-        )
 
 
 def load_media():
@@ -207,15 +186,30 @@ if __name__ == "__main__":
 
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('links', links, pass_args=True))
-    dispatcher.add_handler(CommandHandler('add_link', add_link, pass_args=True))
-    dispatcher.add_handler(CommandHandler('remove_link', remove_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('events', events))
     dispatcher.add_handler(CommandHandler('motiveme', motiveme))
     dispatcher.add_handler(CommandHandler('norating', norating))
     dispatcher.add_handler(CommandHandler('givehint', givehint))
     dispatcher.add_handler(CommandHandler('my_id', my_id))
-    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
-    db = dataset.connect("sqlite:///bot.db");
+    dispatcher.add_handler(CommandHandler('add_link', add_link, pass_args=True))
+    dispatcher.add_handler(CommandHandler('rem_link', rem_link, pass_args=True))
+    dispatcher.add_handler(CommandHandler('admin', admin))
+
+    query_result_handler = CallbackQueryHandler(query_result)
+    dispatcher.add_handler(
+        ConversationHandler(
+            entry_points = [CallbackQueryHandler(query_result)],
+            states = {
+                ADD_ADMIN_0: [MessageHandler(Filters.text, add_admin_step0, pass_user_data=True)],
+                ADD_ADMIN_1: [MessageHandler(Filters.text, add_admin_step1, pass_user_data=True)],
+                REM_ADMIN: [MessageHandler(Filters.text, rem_admin)],
+            },
+            fallbacks = [CommandHandler('cancel', cancel)],
+            allow_reentry = True
+        )
+    )
+
+    dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     updater.start_polling()
