@@ -41,11 +41,10 @@ def links(bot, update, args):
             text="Não existe nenhum link =[")
     else:
         if len(args) == 0 or args[0] != 'all':
-            msg = ""
+            msg = "*IME++ Links*\n"
 
             total_links = 8
             if len(links) > total_links:
-              msg = "*IME++ Links*\n"
               msg += "Mostrando últimos " + str(total_links) + " links\nUse `/links all` para mostrar todos\n\n"
 
             for i in range(max(-total_links, -len(links)), 0):
