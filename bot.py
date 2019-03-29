@@ -31,16 +31,13 @@ USERS = { 'xavi': 366505920, 'naum': 187158190 }
 def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Eu sou um bot, mas você pode me entender como uma convolução cíclica multivariável")
 
-def links(bot, update, args):
-    table = db["links"]
-    links = list(table.all())
-
+def show(bot, update, links, isAll):
     if len(links) == 0:
         bot.send_message(
             chat_id = update.message.chat_id,
             text="Não existe nenhum link =[")
     else:
-        if len(args) == 0 or args[0] != 'all':
+        if not isAll:
             msg = "*IME++ Links*\n"
 
             total_links = 8
@@ -71,9 +68,22 @@ def links(bot, update, args):
             )
 
 
-def add_link_internal(update, name, link):
+
+def permanent_links(bot, update, args):
+    table = db["links"]
+    links = list(table.find(isPermanent=1))
+    if len(args) == 0 or args[0] != 'all' : show(bot, update, links, 0)
+    else: show(bot, update, links, 1)
+
+def links(bot, update, args):
+    table = db["links"]
+    links = list(table.find(isPermanent=0))
+    if len(args) == 0 or args[0] != 'all' : show(bot, update, links, 0)
+    else: show(bot, update, links, 1)
+
+def add_link_internal(update, name, link, isPermanent):
     links_db = db['links']
-    links_db.upsert(dict(name=name, url=link), ['url'])
+    links_db.upsert(dict(name=name, url=link, isPermanent=isPermanent), ['url'])
 
     msg  = "*Link adicionado ou atualizado com sucesso!*\n"
     msg += "Link: " + link + "\n"
@@ -91,6 +101,43 @@ def rem_link_internal(update, link):
     links_db.delete(url=link)
     update.message.reply_text("Link removido com sucesso. (Ou não)")
 
+def verify(update, link):
+    if "http" not in link:
+        update.effective_message.reply_text(
+            "Comando incorreto.\nIsso não é um link"
+        )
+        return 0
+    return 1
+
+@restricted
+def add_link_permanent(bot, update, args):
+    if len(args) < 2:
+        update.effective_message.reply_text(
+        "Comando incorreto.\nUso: /add_link_permanent <nome do link> <link>"
+        )
+        return
+
+    link = args[-1]
+    if not verify(update, link): return
+
+    name = ' '.join(args[:-1])
+    add_link_internal(update, name, link, 1)
+
+@restricted
+def add_link_right(bot, update, args): 
+    if len(args) < 2:
+        update.effective_message.reply_text(
+            "Comando incorreto.\nUso: /real_add_link <nome do link> <link>"
+        )
+        return
+
+    link = args[-1]
+    if not verify(update, link): return
+
+    name = ' '.join(args[:-1])
+    add_link_internal(update, name, link, 0)
+
+
 @restricted
 def add_link(bot, update, args):
     if len(args) < 2:
@@ -100,8 +147,10 @@ def add_link(bot, update, args):
         return
 
     link = args[0]
+    if not verify(update, link): return
+    
     name = ' '.join(args[1:])
-    add_link_internal(update, name, link)
+    add_link_internal(update, name, link, 0)
 
 
 @restricted
@@ -113,6 +162,15 @@ def rem_link(bot, update, args):
         return
 
     link = args[0]
+    if not verify(update, link): return
+
+    links_db = db['links']
+    if not links_db.find_one(url=link):
+        update.effective_message.reply_text(
+            "Este link não está na lista"
+        )
+        return
+    
     rem_link_internal(update, link)
 
 
@@ -185,6 +243,7 @@ if __name__ == "__main__":
 
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('links', links, pass_args=True))
+    dispatcher.add_handler(CommandHandler('permanent_links', permanent_links, pass_args=True))
     dispatcher.add_handler(CommandHandler('events', events))
     dispatcher.add_handler(CommandHandler('motiveme', motiveme))
     dispatcher.add_handler(CommandHandler('norating', norating))
@@ -192,6 +251,8 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('my_id', my_id))
 
     dispatcher.add_handler(CommandHandler('add_link', add_link, pass_args=True))
+    dispatcher.add_handler(CommandHandler('real_add_link', add_link_right, pass_args=True))
+    dispatcher.add_handler(CommandHandler('add_link_permanent', add_link_permanent, pass_args=True)) 
     dispatcher.add_handler(CommandHandler('rem_link', rem_link, pass_args=True))
     dispatcher.add_handler(CommandHandler('admin', admin))
 
