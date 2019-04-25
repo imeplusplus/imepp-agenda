@@ -55,8 +55,8 @@ def get_best_format(start, end):
         return "acabou =[, até a próxima"
 
     diff = start - now
-    day = datetime.timedelta(1)
-    if(diff > day):
+    hours = datetime.timedelta(hours=3)
+    if(diff > hours):
         return start.strftime("%d/%m (%a), %H:%Mh ~ ") + end.strftime("%H:%Mh")
 
     diff_h, diff_m = hm(diff)
