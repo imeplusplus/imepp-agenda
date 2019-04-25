@@ -77,14 +77,16 @@ def permanent_links(bot, update, args):
 
 def links(bot, update, args):
     table = db["links"]
-    links = list(table.find(isPermanent=0))
+    #links = list(table.find(isPermanent=0))
+    links = list(table.all())
     if len(args) == 0 or args[0] != 'all' : show(bot, update, links, 0)
     else: show(bot, update, links, 1)
 
 def add_link_internal(update, name, link, isPermanent):
     links_db = db['links']
-    links_db.upsert(dict(name=name, url=link, isPermanent=isPermanent), ['url'])
+   # links_db.upsert(dict(name=name, url=link, isPermanent=isPermanent), ['url'])
 
+    links_db.upsert(dict(name=name, url=link), ['url'])
     msg  = "*Link adicionado ou atualizado com sucesso!*\n"
     msg += "Link: " + link + "\n"
     msg += "Descrição: " + name

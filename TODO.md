@@ -10,3 +10,8 @@
 - [ ] Reorder links
   - [ ] Add order column to database
 - [ ] (idea) Add team chooser
+
+# TODO list (hsnavarro)
+- [ ] Fix handler command (Remember admin)
+- [-] Add permanent link integration
+- [-] Remove link wrong command detector for remove link
