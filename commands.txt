@@ -1,9 +1,19 @@
-start - Start the best bot ever!
 links - List the not permanent links
 permanent_links - List the permanent links
+events - List upcoming events
+motiveme - Get the motivation you need!
+norating - Funny comics
+givehint - Funny comics
+
+# miscellaneous
+
+start - Start the best bot ever!
+my_id - Get your Telegram ID
+
+# admin commands
+
 real_add_link - Add a link, the right way
 add_link_permanent - Add a permanent link
 add_link - Add a link
 rem_link - Remove a link
-events - List upcoming events
-motiveme - Get the motivation you need!
+admin - Open admin menu
