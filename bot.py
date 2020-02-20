@@ -12,7 +12,9 @@ from telegram.ext import *
 from collections import defaultdict
 
 import bot_calendar
+from bot_restricted import restricted
 from bot_admin import *
+from bot_links import *
 from bot_migrate import migrate
 
 db = dataset.connect("sqlite:///bot.db");
@@ -36,18 +38,18 @@ USERS = { 'xavi': 366505920, 'naum': 187158190 }
 def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Eu sou um bot, mas você pode me entender como uma convolução cíclica multivariável")
 
-def show(bot, update, links, isAll):
+def list_links(bot, update, links, list_all):
     if len(links) == 0:
         bot.send_message(
             chat_id = update.message.chat_id,
             text="Não existe nenhum link =[")
     else:
-        if not isAll:
+        if not list_all:
             msg = "*IME++ Links*\n"
 
             total_links = 8
             if len(links) > total_links:
-              msg += "Mostrando últimos " + str(total_links) + " links\nUse `/links all` para mostrar todos\n\n"
+                msg += "Mostrando últimos " + str(total_links) + " links\nUse `/links all` para mostrar todos\n\n"
 
             for i in range(max(-total_links, -len(links)), 0):
                 msg += links[i]['name'] + ": " + links[i]['url'] + "\n"
@@ -77,34 +79,14 @@ def show(bot, update, links, isAll):
 def permanent_links(bot, update, args):
     table = db["links"]
     links = list(table.find(isPermanent=1))
-    if len(args) == 0 or args[0] != 'all' : show(bot, update, links, 0)
-    else: show(bot, update, links, 1)
+    if len(args) == 0 or args[0] != 'all' : list_links(bot, update, links, 0)
+    else: list_links(bot, update, links, 1)
 
 def links(bot, update, args):
     table = db["links"]
     links = list(table.find(isPermanent=0))
-    if len(args) == 0 or args[0] != 'all' : show(bot, update, links, 0)
-    else: show(bot, update, links, 1)
-
-def add_link_internal(update, name, link, isPermanent):
-    links_db = db['links']
-    links_db.upsert(dict(name=name, url=link, isPermanent=isPermanent), ['url'])
-
-    msg  = "*Link adicionado ou atualizado com sucesso!*\n"
-    msg += "Link: " + link + "\n"
-    msg += "Descrição: " + name
-
-    update.message.reply_text(
-        msg,
-        parse_mode = ParseMode.MARKDOWN,
-        disable_web_page_preview=True
-    )
-
-
-def rem_link_internal(update, link):
-    links_db = db['links']
-    links_db.delete(url=link)
-    update.message.reply_text("Link removido com sucesso. (Ou não)")
+    if len(args) == 0 or args[0] != 'all' : list_links(bot, update, links, 0)
+    else: list_links(bot, update, links, 1)
 
 def verify(update, link):
     if "http" not in link:
@@ -118,7 +100,7 @@ def verify(update, link):
 def add_link_permanent(bot, update, args):
     if len(args) < 2:
         update.effective_message.reply_text(
-        "Comando incorreto.\nUso: /add_link_permanent <nome do link> <link>"
+            "Comando incorreto.\nUso: /add_link_permanent <nome do link> <link>"
         )
         return
 
@@ -153,7 +135,7 @@ def add_link(bot, update, args):
 
     link = args[0]
     if not verify(update, link): return
-    
+
     name = ' '.join(args[1:])
     add_link_internal(update, name, link, 0)
 
@@ -175,7 +157,7 @@ def rem_link(bot, update, args):
             "Este link não está na lista"
         )
         return
-    
+
     rem_link_internal(update, link)
 
 
@@ -240,6 +222,45 @@ def unknown(bot, update):
                      text="Comando não reconhecido :(")
 
 
+@restricted
+def config_menu(bot, update):
+    custom_keyboard = [
+        [
+            InlineKeyboardButton("Admins", callback_data="config admins"),
+            InlineKeyboardButton("Links", callback_data="config links"),
+        ]
+    ]
+
+    if update.callback_query is None:
+        update.effective_user.send_message(
+            text='*Config*',
+            reply_markup=InlineKeyboardMarkup(custom_keyboard),
+            parse_mode=ParseMode.MARKDOWN
+        )
+    else:
+        bot.edit_message_text(
+            chat_id=update.callback_query.message.chat_id,
+            message_id=update.callback_query.message.message_id,
+            text='*Config*',
+            reply_markup=InlineKeyboardMarkup(custom_keyboard),
+            parse_mode=ParseMode.MARKDOWN
+        )
+
+
+@restricted
+def config_menu_query_result(bot, update):
+    query = update.callback_query
+    data = query.data.split(' ')
+    data = data[1]
+
+    bot.answer_callback_query(query.id)
+
+    if data == 'admins':
+        admins_menu(bot, update)
+    elif data == 'links':
+        links_menu(bot, update)
+
+
 if __name__ == "__main__":
     print("Starting IMEppAgenda")
     locale.setlocale(locale.LC_TIME, 'pt_BR.UTF8')
@@ -259,21 +280,10 @@ if __name__ == "__main__":
     dispatcher.add_handler(CommandHandler('real_add_link', add_link_right, pass_args=True))
     dispatcher.add_handler(CommandHandler('add_link_permanent', add_link_permanent, pass_args=True)) 
     dispatcher.add_handler(CommandHandler('rem_link', rem_link, pass_args=True))
-    dispatcher.add_handler(CommandHandler('admin', admin))
-
-    query_result_handler = CallbackQueryHandler(query_result)
-    dispatcher.add_handler(
-        ConversationHandler(
-            entry_points = [CallbackQueryHandler(query_result)],
-            states = {
-                ADD_ADMIN_0: [MessageHandler(Filters.text, add_admin_step0, pass_user_data=True)],
-                ADD_ADMIN_1: [MessageHandler(Filters.text, add_admin_step1, pass_user_data=True)],
-                REM_ADMIN: [MessageHandler(Filters.text, rem_admin)],
-            },
-            fallbacks = [CommandHandler('cancel', cancel)],
-            allow_reentry = True
-        )
-    )
+    dispatcher.add_handler(CommandHandler('config', config_menu))
+    dispatcher.add_handler(CallbackQueryHandler(config_menu_query_result, pattern=r'^\bconfig\b'))
+    dispatcher.add_handler(admins_handler)
+    dispatcher.add_handler(links_handler)
 
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 

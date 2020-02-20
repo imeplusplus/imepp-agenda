@@ -4,32 +4,12 @@
 from functools import wraps
 from telegram import *
 from telegram.ext import *
+from bot_restricted import restricted
 from bot_db import db
+import bot as app # This avoids cyclic imports
 
 
 ADD_ADMIN_0, ADD_ADMIN_1, REM_ADMIN, BROADCAST = range(4)
-
-
-def restricted(func):
-    @wraps(func)
-    def wrapped(bot, update, *args, **kwargs):
-        table = db['admins']
-
-        if table.count() != 0:
-            user_id = update.effective_user.id
-            if not table.find_one(id=user_id):
-                bot.send_message(
-                    chat_id=update.effective_user.id,
-                    text='Acesso negado :('
-                )
-
-                if update.callback_query:
-                    bot.answer_callback_query(update.callback_query.id)
-
-                return
-
-        return func(bot, update, *args, **kwargs)
-    return wrapped
 
 
 @restricted
@@ -92,7 +72,7 @@ def list_admins(bot, update):
 
 
 @restricted
-def admin(bot, update):
+def admins_menu(bot, update):
     custom_keyboard = [
         [
             InlineKeyboardButton("Add admin", callback_data="admin add_admin"),
@@ -100,41 +80,39 @@ def admin(bot, update):
         ],
         [
             InlineKeyboardButton("List admins", callback_data="admin list_admins"),
+            InlineKeyboardButton("« Back", callback_data="admin back"),
         ],
         #[
         #    InlineKeyboardButton("Broadcast", callback_data="admin broadcast"),
         #]
     ]
 
-    update.effective_user.send_message(
-        text='Admin menu:',
-        reply_markup=InlineKeyboardMarkup(custom_keyboard)
+    bot.edit_message_text(
+        chat_id=update.callback_query.message.chat_id,
+        message_id=update.callback_query.message.message_id,
+        text='*Config* / *admins*',
+        reply_markup=InlineKeyboardMarkup(custom_keyboard),
+        parse_mode=ParseMode.MARKDOWN
     )
 
 
 @restricted
-def query_result(bot, update):
+def admins_menu_query_result(bot, update):
     query = update.callback_query
-    data = query.data.split(' ')
-    result_type = data[0]
-    result_data = data[1]
+    data = query.data.split(' ')[1]
 
     bot.answer_callback_query(query.id)
 
-    if result_type == 'admin':
-        if result_data == 'add_admin':
-            update.effective_message.reply_text("Envie o id do usuário (/cancel para cancelar):")
-            return ADD_ADMIN_0
-        elif result_data == 'rem_admin':
-            update.effective_message.reply_text("Envie o id do usuário (/cancel para cancelar):")
-            return REM_ADMIN
-        elif result_data == 'list_admins':
-            list_admins(bot, update)
-            return ConversationHandler.END
-        elif result_data == 'broadcast': to_be_implemented(bot, query.message.chat_id)
-        else: something_wrong(bot, query.message.chat_id)
-    else:
-        something_wrong(bot, query.message.chat_id)
+    if data == 'add_admin':
+        update.effective_message.reply_text("Envie o id do usuário (/cancel para cancelar):")
+        return ADD_ADMIN_0
+    elif data == 'rem_admin':
+        update.effective_message.reply_text("Envie o id do usuário (/cancel para cancelar):")
+        return REM_ADMIN
+    elif data == 'list_admins': list_admins(bot, update)
+    elif data == 'broadcast': to_be_implemented(bot, query.message.chat_id)
+    elif data == 'back': app.config_menu(bot, update)
+    else: something_wrong(bot, query.message.chat_id)
 
     return ConversationHandler.END
 
@@ -160,3 +138,15 @@ def something_wrong(bot, chat_id):
         text="Houston, we have a problem!"
     )
     return ConversationHandler.END
+
+
+admins_handler = ConversationHandler(
+    entry_points = [CallbackQueryHandler(admins_menu_query_result, pattern=r'^\badmin\b')],
+    states = {
+        ADD_ADMIN_0: [MessageHandler(Filters.text, add_admin_step0, pass_user_data=True)],
+        ADD_ADMIN_1: [MessageHandler(Filters.text, add_admin_step1, pass_user_data=True)],
+        REM_ADMIN: [MessageHandler(Filters.text, rem_admin)],
+    },
+    fallbacks = [CommandHandler('cancel', cancel)],
+    allow_reentry = True
+)

@@ -1,14 +1,22 @@
 # TODO list
 
-- [ ] Create admin menu
-  - [ ] (?) Add link
-  - [ ] (?) Remove link
-  - [ ] Add admin
-  - [ ] Remove admin
-  - [ ] List admins
-  - [ ] Broadcast message
-- [ ] Reorder links
-  - [ ] Add order column to database
+- [x] Create config menu
+  - [x] Admins
+    - [x] Add admin
+    - [x] Remove admin
+    - [x] List admins
+    - [ ] Broadcast message
+  - [ ] Links
+    - [x] Add link
+    - [x] Remove link
+    - [ ] Remove link show link buttons
+    - [ ] Reorder links
+      - [ ] Add order column to database
+      - [ ] Show links with buttons up and down to be easy to move
+- [ ] Link groups (permanent -> imepp, ps)
+  - [ ] Add link to group
+  - [ ] Rename group
+  - [ ] Archive group
 - [ ] (idea) Add team chooser
 
 # TODO list (hsnavarro)
