@@ -7,6 +7,8 @@ After=network.target network-online.target
 ExecStart=/srv/imepp-agenda/run.sh
 Restart=always
 RestartSec=5
+User=imeppagenda
+Group=imeppagenda
 
 [Install]
 WantedBy=multi-user.target
