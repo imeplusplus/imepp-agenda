@@ -9,6 +9,7 @@ Restart=always
 RestartSec=5
 User=imeppagenda
 Group=imeppagenda
+Environment=PATH=/usr/bin:/usr/local/bin
 WorkingDirectory=/home/imeppagenda/imepp-agenda
 
 [Install]
