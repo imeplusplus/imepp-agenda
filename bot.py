@@ -255,7 +255,9 @@ def config_menu_query_result(bot, update):
 
     bot.answer_callback_query(query.id)
 
-    if data == 'admins':
+    if data == 'main':
+        config_menu(bot, update)
+    elif data == 'admins':
         admins_menu(bot, update)
     elif data == 'links':
         links_menu(bot, update)

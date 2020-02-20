@@ -6,7 +6,7 @@ from telegram import *
 from telegram.ext import *
 from bot_restricted import restricted
 from bot_db import db
-import bot as app # This avoids cyclic imports
+from bot_menu_common import *
 
 
 ADD_ADMIN_0, ADD_ADMIN_1, REM_ADMIN, BROADCAST = range(4)
@@ -80,7 +80,7 @@ def admins_menu(bot, update):
         ],
         [
             InlineKeyboardButton("List admins", callback_data="admin list_admins"),
-            InlineKeyboardButton("« Back", callback_data="admin back"),
+            InlineKeyboardButton("« Back", callback_data="config main"),
         ],
         #[
         #    InlineKeyboardButton("Broadcast", callback_data="admin broadcast"),
@@ -111,32 +111,9 @@ def admins_menu_query_result(bot, update):
         return REM_ADMIN
     elif data == 'list_admins': list_admins(bot, update)
     elif data == 'broadcast': to_be_implemented(bot, query.message.chat_id)
-    elif data == 'back': app.config_menu(bot, update)
+    #elif data == 'back': app.config_menu(bot, update)
     else: something_wrong(bot, query.message.chat_id)
 
-    return ConversationHandler.END
-
-
-def cancel(bot, update):
-    bot.send_message(
-        chat_id=update.message.chat_id,
-        text="Operation cancelled!"
-    )
-    return ConversationHandler.END
-
-
-def to_be_implemented(bot, chat_id):
-    bot.send_message(
-        chat_id=chat_id,
-        text="To be implemented!"
-    )
-
-
-def something_wrong(bot, chat_id):
-    bot.send_message(
-        chat_id=chat_id,
-        text="Houston, we have a problem!"
-    )
     return ConversationHandler.END
 
 
