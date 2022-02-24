@@ -77,7 +77,7 @@ $ bash setup.sh
 Link `imepp-agenda.service` to `/etc/systemd/system`.
 
 ```
-$ sudo ln -s /home/imepp-agenda/imepp-agenda.service /etc/systemd/system/imepp-agenda.service
+$ sudo ln -s /home/imeppagenda/imepp-agenda/imepp-agenda.service /etc/systemd/system/imepp-agenda.service
 ```
 
 Enable it to run at boot:
