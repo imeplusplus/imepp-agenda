@@ -24,15 +24,25 @@ Set timezone to `America/Sao_Paulo`
 $ sudo timedatectl set-timezone America/Sao_Paulo
 ```
 
-# Configuring IMEppAgenda
-
-## Python3, virtualenv and pip
-
-Install python3, virtualenv and pip
+# Downloading dependencies
 
 ```
 $ sudo apt install python3 python3-pip python3-venv
 ```
+
+# Configuring IMEppAgenda
+
+## Create user and setup folders
+
+```
+$ sudo adduser imeppagenda
+$ sudo su imeppagenda
+$ cd
+$ git clone <this-repo>
+$ cd imepp-agenda
+```
+
+## Python3, virtualenv and pip
 
 Run virtualenv
 
@@ -46,6 +56,7 @@ $ source venv/bin/activate
 ## Install requirements
 
 ```
+$ pip install wheel
 $ pip install -r requirements.txt
 ```
 
